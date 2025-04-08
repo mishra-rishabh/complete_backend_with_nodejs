@@ -47,7 +47,8 @@ Agar hum `"type": "module"` use krte hain to hum `"import"` use kr skte hain ins
 
 - Jab client side se request bhejte hain server ko, to server ko ye maloom hona chahiye ki request kaha se aa rahi hai.
 - Bole to **client ka URL maloom hona chaiye.**
-- Jabb server ko ye maloon nahi hota hai ki request kaha se aa rhi hai to wo CORS fek deta hai.
+- Jabb server ko ye maloom nahi hota hai ki request kaha se aa rhi hai to wo CORS fek deta hai.
+- Basically CORS error tabb aati hai jabb front-end (client) and server ke ports alag-alag ho, bole to unke ports match na kare.
 
 ---
 
