@@ -119,18 +119,6 @@ EXPOSE 3000
 CMD ["node", "server.js"]
 ```
 
-### 👉 Line by Line Explanation:
-
-1. **`FROM node:20.14.0-alpine`**:
-    - `FROM` ek base image select karta hai jisme humari app chalegi.
-    - `node:20.14.0-alpine` ka matlab hai ki **Node.js** ka version `20.14.0` aur **Alpine Linux** version use kar rahe hain.
-    - **Alpine** kyon? Kyunki ye image chhoti (~20MB) hoti hai aur fast load hoti hai.
-    - Agar **full Ubuntu/Debian version** chahiye (zyada dependencies ke liye), to `FROM node:20.14.0` likh sakte hain.
-    - Agar latest **Node.js** chahiye, to `FROM node:latest` likh sakte hain.
-
-2. **`WORKDIR /app`**:
-    - 
-
 docker compose up --build
 docker ps
 docker ps -a
