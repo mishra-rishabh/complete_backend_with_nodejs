@@ -1,0 +1,19 @@
+{
+  "name": "project_09_docker_complete",
+  "version": "1.0.0",
+  "description": "Jab hum apna code likhte hain, uske sath libraries, dependencies, aur configurations bhi hoti hain. Jab hum ise kisi aur system pe chalana chahte hain, to ye sab properly setup karna padta hai, warna **\"It works on my machine\"** wali problem aa jati hai.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js",
+    "dev": "nodemon index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0",
+    "nodemon": "^3.1.10"
+  }
+}
