@@ -68,13 +68,15 @@ Docker me 3 main cheezein hoti hain:
 - `docker run --name <custom_container_name> -it <image_name>`: Assign a name to the container. Example: `docker run --name alpine_container -it alpine`.
 - `docker build -t my_express_app .`: Builds the docker image from docker file.
 - `docker run -t -p 3000:8000 my_express_app`: Maps the system port (8000) to docker port (3000).
+- `docker run -it -p 3000:8000 -p 3001:8000 -p 3002:8000 my_express_app`: Maps the system port (8000) with multiple docker ports (3000, 3001, 3002).
+- `docker run -it -P my_express_app`: Maps the exposed port automatically with random docker port. **NOTE:** Use `-P` **(uppercase)**.
 - `docker compose up --build`: 
 
 ---
 
 ### Creating Custom Images 🖼️
 
-Custom docker image create krne ke liye hume dockerfile create karn hoti hai.
+Custom docker image create krne ke liye hume dockerfile create karni hoti hai.
 
 ### Dockerfile & .dockerignore
 
@@ -161,5 +163,14 @@ CMD ["node", "server.js"]
 7. **`CMD ["node", "server.js"]`**:
     - `CMD` batata hai ki container start hone ke baad kaunsi command run hogi.
     - Ye command container ke start hone pe `server.js` ko **Node.js** se run karegi.
+
+Once the **Dockerfile** is created run `docker build -t <custom_image_name> .` <br/>
+**Example:** `docker build -t my_express_app .`
+
+---
+
+### Multi-Stage Build
+
+
 
 ---
