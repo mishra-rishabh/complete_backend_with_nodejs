@@ -1,0 +1,28 @@
+FROM node:20-alpine3.20 AS base
+
+WORKDIR /app
+
+# Builder stage
+FROM base AS builder
+
+COPY package*.json .
+
+RUN npm install
+
+COPY . .
+
+RUN npm run build
+
+# Production stage
+FROM base AS production
+
+WORKDIR /app
+
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/package*.json ./
+
+RUN npm install --omit=dev
+
+EXPOSE 8000
+
+CMD [ "node", "/dist/index.js" ]
