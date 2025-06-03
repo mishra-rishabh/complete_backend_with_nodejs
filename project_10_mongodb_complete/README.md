@@ -167,3 +167,103 @@ We will be using `car_dealership` database here.
 - `db.collection_name.deleteOne({...filter})`: **Example:** `db.cars.deleteOne({fuel_type: "Petrol"})`. This will delete the single (first in the collection) document from a collection, based on the filter.
 - `db.collection_name.deleteMany({...filter})`: **Example:** `db.cars.deleteMany({fuel_type: "Petrol"})`. This will delete all the documents in a collection which matches the filter.
 
+
+### Datatypes in MongoDB
+
+MongoDB uses **BSON (Binary JSON)** format to store documents. BSON includes all JSON datatypes and adds more. Choosing the correct datatype is essential for efficient storage and querying.
+
+Below are the most commonly used MongoDB data types-
+
+1. **String:** This is the most commonly used data type in MongoDB to store data, BSON strings are of UTF-8. **Example:** `name: "Unnat"`.
+2. **Integer:** The integer data type is used to store an integer value. We can store integer data type in two forms **32-bit signed integer** and **64-bit signed integer**. These are used to store whole numbers, such as ages, counts, or any other numerical data that doesn't require decimal points. **Example:** `age: 30`.
+3. **Double:** The **double** data type is used for storing **floating-point numbers (decimal values)**. It's commonly used for storing data that requires decimal precision, such as prices, percentages, or scores. **Example:** `percentage: 98.12`.
+4. **Boolean:** The **boolean** data type stores one of two values: **true** or **false**. It's used for representing binary states, such as "active/inactive" or "pass/fail." **Example:** `isActive: true`.
+5. **Array:** The **array** data type allows us to store multiple values in a single field. MongoDB arrays can contain values of the same or different data types, providing flexibility in how you store collections of related data. In MongoDB, the array is created using **square brackets([])**. **Example:** `skills: ["blockchain", "solidity", "javascript"]`.
+6. **Object (Embedded Document):** Object data type stores embedded documents. Embedded documents are also known as **nested documents**. Embedded document or nested documents are those types of documents which contain a document inside another document. Embedded documents allow us to structure our data hierarchically, which is useful for representing more complex data models.<br/>
+    **Example:**
+    ```javascript
+    {
+        _id: ObjectId('683c3cdf2d174e83756c4bd0'),
+        maker: 'Tata',
+        model: 'Nexon',
+        engine: { type: 'Turbocharged', cc: 1199, torque: '170 Nm' }    // embedded document
+    }
+    ```
+7. **ObjectId:** Whenever we create a new document in the collection MongoDB automatically creates a unique **object id** for that document(if the document does not have it). There is an `_id` field in MongoDB for each document. The data which is stored in Id is of hexadecimal format and the length of the id is **12 bytes**. **Example:** `_id: ObjectId('683c3cdf2d174e83756c4bd0')`.
+8. **Date:** It stores date. It is a 64-bit integer which represents the number of milliseconds. **Example:** `createdAt: ISODate("2023-08-21T14:23:00Z")`.
+9. **Null:** The **null** data type stores a **null** value. This is useful when you want to represent the absence of data, such as an optional field that may not be set. **Example:** `middleName: null`.
+10. **Timestamp:** In MongoDB, this data type is used to store a timestamp. It is useful when we modify our data to keep a record and the value of this data type is **64-bit**. The value of the timestamp data type is always unique. **Example:** `timestamp: Timestamp(1638306013, 1)`.
+11. **Decimal:** This MongoDB data type store **128-bit decimal-based floating-point** value. **Example:** `salary: Decimal128("12345.67")`.
+
+
+### Operators in MongoDB
+
+**Conditional Operators:**
+- **$eq (=):** Values are equal.
+- **$ne (!=):** Values are not equal.
+- **$gt (>):** Value is greater than another value. **Example:** `db.cars.find({"engine.cc": {$gt: 1400}})`.
+- **$gte (>=):** Value is greater than or equal to another value.
+- **$lt (<):** Value is less than another value.
+- **$lte (<=):** Value is less than or equal to another value.
+- **$in:** Value is matched within an array. **Example:** `db.cars.find({"engine.cc": {$in: [1498, 2179]}})`.
+- **$nin:** Opposite of `$in`. It will return the values except those given in an array. **Example:** `db.cars.find({"engine.cc": {$nin: [1498, 2179]}})`.
+
+**Logical Operators:**
+- **$and:** Returns documents where both queries match.
+    ```javascript
+    // syntax
+    db.collection.find({
+        $and: [
+            { condition 1... },
+            { condition 2... },
+            // additional conditions if needed
+        ]
+    })
+
+    // example
+    db.cars.find({
+        $and: [
+            { "fuel_type": "Diesel" },
+            { "engine.type": "Turbocharged" },
+            { "sunroof": true }
+        ]
+    })
+    ```
+- **$or:** Returns documents where either query matches.
+    ```javascript
+    // syntax
+    db.collection.find({
+        $or: [
+            { condition 1... },
+            { condition 2... },
+            // additional conditions if needed
+        ]
+    })
+
+    // example
+    db.cars.find({
+        $or: [
+            { "fuel_type": "Diesel" },
+            { "engine.type": "Turbocharged" }
+        ]
+    })
+    ```
+- **$nor:** Returns documents where both queries fail to match.
+- **$not:** Returns documents where the query does not match.
+
+**Element Operators:**
+- **$exists:** It tells whether any particular field is there in the document or not. **Example:** `db.cars.find({fuel_type: {$exists: true}})`. It means, agar `fuel_type` field hai to hi records print karo, kyu ki humne `true` set kar rkha hai. Agar `false` hota to iska mtlb hota ki records tabhi print karo jabb `fuel_type` field na ho.
+- **type:** Here we can filter the content based on **BSON** type like `string`, `bool`, etc. This can be useful to find the field with `null` values. **Example:** `db.cars.find({model: {$type: "string"}})`. It means, agar `model` field ka type `string` ho to hi record print karo.
+
+**Array Operators:**
+- **$size:** Return all documents that match specified array size. **Example:** `db.cars.find({features: {$size: 5}})`. It means, ki `cars` collection me wo sabb documents de do jiske `features` array ka size **5** ho.
+- **$all:** Return all documents that matches the pattern (like, all users with hobbies of play and read). **Example:** `db.cars.find({features: {$all: ["Sunroof", "Bluetooth"]}})`. It means, `cars` collection ke wo sabb documents de do jiske `features` array me **Sunroof** and **Bluetooth** dono ho.
+
+
+### Cursor Methods
+
+- **Count:** Number of records de dega. **Example:** `db.cars.find().count()`. Isme filter bhi de skte hain. **Example:** `db.cars.find({fuel_type: "Petrol"}).count()`.
+- **Sort:** Data ko sort kar ke dega in **ascending (1)** or **descending(-1)** order based on particular column, like `name`. **Example:** `db.cars.find({}, {_id: 0, model: 1}).sort({model: 1})`. Ye sirf `model` field ko project karega and records ko **alphabetical** order me sort kar dega.
+- **Limit:** Agar bohot saare records me se sirf kuchh hi records dekhne hain, like starting ke **5** to `limit` use karenge. **Example:** `db.cars.find().limit(2)`. Ye starting ke **2** records dega.
+- **Skip:** Ye provided number of records skip kar dega uske baad records print karega. **Example:** `db.cars.find().skip(2)`. Ye starting ke **2** records skip kar dega and baki ke records print kar dega.
+
