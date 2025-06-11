@@ -267,3 +267,115 @@ Below are the most commonly used MongoDB data types-
 - **Limit:** Agar bohot saare records me se sirf kuchh hi records dekhne hain, like starting ke **5** to `limit` use karenge. **Example:** `db.cars.find().limit(2)`. Ye starting ke **2** records dega.
 - **Skip:** Ye provided number of records skip kar dega uske baad records print karega. **Example:** `db.cars.find().skip(2)`. Ye starting ke **2** records skip kar dega and baki ke records print kar dega.
 
+
+### Aggregate Framework
+
+Aggregation is a powerful framework for complex operations, like **filtering, grouping, sorting, reshaping and summarizing** data in a flexible way via **pipeline**.
+
+Ye stages me kaam karta hai, like stage 1 me jo data hai usme kuchh operation kiye fir ussse jo refined data mila use stage 2 me bheja aur refine hone ke liye and so on. Isse hume exactly wahi data milta hai jo hume chahiye in a refined way.<br/>
+**Example:**
+```javascript
+db.orders.aggregate([
+    // stage 1: filter pizza order documents by pizza size
+    { $match: { size: "medium" } },
+
+    // stage 2: group remaining documents by pizza name and calculate total quantity
+    { $group: { _id: "$name", totalQuantity: { $sum: "$quantity" } } } 
+])
+```
+
+### Most Commonly Used Stages in MongoDB Aggregation
+
+- **$group:** This aggregation stage groups documents by the unique `_id` expression provided. "Don't confuse this `_id` expression with the `_id` **ObjectId** provided to each document".<br/>
+    **Example:**
+    ```javascript
+    // 1. This will return the number of cars for each maker.
+    db.cars.aggregate([
+        {$group: {
+            _id: "$maker",
+            totalCars: {$sum: 1}
+        }}
+    ])
+
+    // 2. This will return the number of cars for different fuel_type.
+    db.cars.aggregate([{$group: {_id: "$fuel_type", totalCars: {$sum: 1}}}])
+
+    // 3. This will return the number of cars and average price for each maker.
+    db.cars.aggregate([{$group: {_id: "$maker", totalCars: {$sum: 1}, avgPrice: {$avg: "$price"}}}])
+    ```
+    The `$sum: 1` operation counts the number of documents in each group.
+
+- **$match:** This aggregation stage behaves like a **find**. It will filter documents that match the query provided. Using `$match` early in the pipeline can improve performance since it limits the number of documents the next stages must process.<br/>
+    **Example:**
+    ```javascript
+    // This will return Hyundai cars having engine of more than 1000 cc.
+    db.cars.aggregate([{$match: {maker: "Hyundai", "engine.cc": {$gt: 1000}}}])
+    ```
+- **$count:** This aggregation stage counts the total amount of documents passed from the previous stage.<br/>
+    **Example:**
+    ```javascript
+    // This will return the total number of Hyundai cars.
+    db.cars.aggregate([{$match: {maker: "Hyundai"}}, {$count: "Total_cars"}])
+
+    // This will return the number of cars of Hyundai brand based on fuel_type.
+    db.cars.aggregate([{$match: {maker: "Hyundai"}}, {$group: {_id: "$fuel_type", TotalCars: {$sum: 1}}}])
+    ```
+- **$project:** This aggregation stage passes only the specified fields along to the next aggregation stage.<br/>
+    ```javascript
+    // Return all the Hyundai cars and only show Maker, Model, and Fuel Type details.
+    db.cars.aggregate([{$match: {maker: "Hyundai"}}, {$project: {_id: 0, maker: 1, model: 1, fuel_type: 1}}]) 
+    ```
+- **$sort:** This aggregation stage groups sorts all documents in the specified sort order.<br/>
+    ```javascript
+    // Return all the Hyundai cars and only show Maker, Model, and Fuel Type details and sort the data based on the model.
+    db.cars.aggregate([{$match: {maker: "Hyundai"}}, {$project: {_id: 0, maker: 1, model: 1, fuel_type: 1}}, {$sort: {model: 1}}])
+
+    // same query but the data is sorted in descending order (only chnage: model: -1).
+    db.cars.aggregate([{$match: {maker: "Hyundai"}}, {$project: {_id: 0, maker: 1, model: 1, fuel_type: 1}}, {$sort: {model: -1}}])
+    ```
+- **$sortByCount:** This aggregation groups documents based on a specified field or expression, counts the number of documents in each group, and then sorts the results by the count in descending order.<br/>
+    ```javascript
+    // Group the cars by maker and then sort based on the count (number of cars).
+    db.cars.aggregate([{$sortByCount: "$maker"}]) 
+    ```
+- **$unwind:** The **operator** breaks down an array field into multiple documents, where each document contains one element from the original array.<br/>
+    ```javascript
+    // We have multiple owners for each car, now if we want to work on each owner then we can use unwind.
+    db.cars.aggregate([{$match: {maker: "Hyundai"}}, {$unwind: "$owners"}])
+    ```
+- **$out:** This aggregation stage writes the returned documents from the aggregation pipeline to a new collection. The `$out` stage must be the **last** stage of the aggregation pipeline.<br/>
+    ```javascript
+    // After aggregation, store the result in an another collection "hyundai_cars"
+    db.cars.aggregate([{$match: {maker: "Hyundai"}}, {$project: {_id: 0, car_name: {$concat: ["$maker", " ", "$model"]}}}, {$out: "hyundai_cars"}])
+    ```
+
+
+### String Operators (Commonly Used)
+
+- **$concat:** This operator is mainly used within the `$project` stage of an aggregation pipeline to combine multiple strings or expressions.<br/>
+    ```javascript
+    // List down all the cars and print the name as Maker + Model i.e., Hyundai Creta
+    db.cars.aggregate([{$match: {maker: "Hyundai"}}, {$project: {_id: 0, CarName: {$concat: ["$maker", " ", "$model"]}}}])
+    ```
+- **toUpper:** This operartor converts a string to uppercase within an aggregation pipeline.<br/>
+    ```javascript
+    // converts model field to uppercase.
+    db.cars.aggregate([{$match: {maker: "Hyundai"}}, {$project: {_id: 0, model: {$toUpper: "$model"}}}])
+
+    // List down all the cars and print the name as Maker + Model i.e., Hyundai Creta in uppercase. 
+    db.cars.aggregate([{$match: {maker: "Hyundai"}}, {$project: {_id: 0, CarName: {$toUpper: {$concat: ["$maker", " ", "$model"]}}}}])
+    ```
+- **toLower:** This operartor converts a string to lowercase within an aggregation pipeline.<br/>
+    ```javascript
+    // converts model field to lowercase.
+    db.cars.aggregate([{$match: {maker: "Hyundai"}}, {$project: {_id: 0, model: {$toLower: "$model"}}}])
+
+    // List down all the cars and print the name as Maker + Model i.e., Hyundai Creta in lowercase. 
+    db.cars.aggregate([{$match: {maker: "Hyundai"}}, {$project: {_id: 0, CarName: {$toLower: {$concat: ["$maker", " ", "$model"]}}}}])
+    ```
+- **regexMatch:** Performs a regular expression (regex) pattern matching and returns true or false.<br/>
+    ```javascript
+    // Add a flag is_diesel = true/false for each car.
+    db.cars.aggregate([{$project: {model: 1, _id: 0, is_diesel: {$regexMatch: {input: "$fuel_type", regex: "Die"}}}}])
+    ```
+
