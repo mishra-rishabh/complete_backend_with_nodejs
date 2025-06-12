@@ -321,11 +321,13 @@ db.orders.aggregate([
     db.cars.aggregate([{$match: {maker: "Hyundai"}}, {$group: {_id: "$fuel_type", TotalCars: {$sum: 1}}}])
     ```
 - **$project:** This aggregation stage passes only the specified fields along to the next aggregation stage.<br/>
+    **Example:**
     ```javascript
     // Return all the Hyundai cars and only show Maker, Model, and Fuel Type details.
     db.cars.aggregate([{$match: {maker: "Hyundai"}}, {$project: {_id: 0, maker: 1, model: 1, fuel_type: 1}}]) 
     ```
 - **$sort:** This aggregation stage groups sorts all documents in the specified sort order.<br/>
+    **Example:**
     ```javascript
     // Return all the Hyundai cars and only show Maker, Model, and Fuel Type details and sort the data based on the model.
     db.cars.aggregate([{$match: {maker: "Hyundai"}}, {$project: {_id: 0, maker: 1, model: 1, fuel_type: 1}}, {$sort: {model: 1}}])
@@ -334,21 +336,25 @@ db.orders.aggregate([
     db.cars.aggregate([{$match: {maker: "Hyundai"}}, {$project: {_id: 0, maker: 1, model: 1, fuel_type: 1}}, {$sort: {model: -1}}])
     ```
 - **$sortByCount:** This aggregation groups documents based on a specified field or expression, counts the number of documents in each group, and then sorts the results by the count in descending order.<br/>
+    **Example:**
     ```javascript
     // Group the cars by maker and then sort based on the count (number of cars).
     db.cars.aggregate([{$sortByCount: "$maker"}]) 
     ```
 - **$unwind:** The **operator** breaks down an array field into multiple documents, where each document contains one element from the original array.<br/>
+    **Example:**
     ```javascript
     // We have multiple owners for each car, now if we want to work on each owner then we can use unwind.
     db.cars.aggregate([{$match: {maker: "Hyundai"}}, {$unwind: "$owners"}])
     ```
 - **$out:** This aggregation stage writes the returned documents from the aggregation pipeline to a new collection. The `$out` stage must be the **last** stage of the aggregation pipeline.<br/>
+    **Example:**
     ```javascript
     // After aggregation, store the result in an another collection "hyundai_cars"
     db.cars.aggregate([{$match: {maker: "Hyundai"}}, {$project: {_id: 0, car_name: {$concat: ["$maker", " ", "$model"]}}}, {$out: "hyundai_cars"}])
     ```
 - **$addFields/$set:** This aggregation stage adds new fields to documents.<br/>
+    **Example:**
     ```javascript
     // This will add the new field "price_in_lakhs"
     db.cars.aggregate([{$project: {_id: 0, model: 1, price: 1}}, {$addFields: {price_in_lakhs: {$round: [{$divide: ["$price", 100000]}, 1]}}}])
@@ -358,11 +364,13 @@ db.orders.aggregate([
 ### String Operators (Commonly Used)
 
 - **$concat:** This operator is mainly used within the `$project` stage of an aggregation pipeline to combine multiple strings or expressions.<br/>
+    **Example:**
     ```javascript
     // List down all the cars and print the name as Maker + Model i.e., Hyundai Creta
     db.cars.aggregate([{$match: {maker: "Hyundai"}}, {$project: {_id: 0, CarName: {$concat: ["$maker", " ", "$model"]}}}])
     ```
 - **toUpper:** This operartor converts a string to uppercase within an aggregation pipeline.<br/>
+    **Example:**
     ```javascript
     // converts model field to uppercase.
     db.cars.aggregate([{$match: {maker: "Hyundai"}}, {$project: {_id: 0, model: {$toUpper: "$model"}}}])
@@ -371,6 +379,7 @@ db.orders.aggregate([
     db.cars.aggregate([{$match: {maker: "Hyundai"}}, {$project: {_id: 0, CarName: {$toUpper: {$concat: ["$maker", " ", "$model"]}}}}])
     ```
 - **toLower:** This operartor converts a string to lowercase within an aggregation pipeline.<br/>
+    **Example:**
     ```javascript
     // converts model field to lowercase.
     db.cars.aggregate([{$match: {maker: "Hyundai"}}, {$project: {_id: 0, model: {$toLower: "$model"}}}])
@@ -379,6 +388,7 @@ db.orders.aggregate([
     db.cars.aggregate([{$match: {maker: "Hyundai"}}, {$project: {_id: 0, CarName: {$toLower: {$concat: ["$maker", " ", "$model"]}}}}])
     ```
 - **regexMatch:** Performs a regular expression (regex) pattern matching and returns true or false.<br/>
+    **Example:**
     ```javascript
     // Add a flag is_diesel = true/false for each car.
     db.cars.aggregate([{$project: {model: 1, _id: 0, is_diesel: {$regexMatch: {input: "$fuel_type", regex: "Die"}}}}])
@@ -388,31 +398,37 @@ db.orders.aggregate([
 ### Arithmetic Operators (Commonly Used)
 
 - **$add:** It is used to **add** numbers together or **concatenate** numbers and dates in the aggregation pipeline.<br/>
+    **Example:**
     ```javascript
     // Print all the model of the cars and price with a hike of 55000.
     db.cars.aggregate([{$project: {_id: 0, model: 1, new_price: {$add: ["$price", 55000]}}}])
     ```
 - **$subtract:** This operator is used to subtract two numbers and return the difference in the numbers or subtract two dates and return the difference in milliseconds.<br/>
+    **Example:**
     ```javascript
     // Print all the model of the cars and price with a cut of 55000.
     db.cars.aggregate([{$project: {_id: 0, model: 1, new_price: {$subtract: ["$price", 55000]}}}])
     ```
 - **$divide:** This operator is used to perform division between two numbers. It divides one number by another and returns the result.<br/>
+    **Example:**
     ```javascript
     // This will divide the price field by 100000.
     db.cars.aggregate([{$project: {_id: 0, model: 1, price: 1}}, {$addFields: {price_in_lakhs: {$round: [{$divide: ["$price", 100000]}, 1]}}}])
     ```
 - **$multiply:** This operator is used to multiply two or more numeric values or expressions together. It returns the result of multiplying all provided values and can be used in the aggregation pipeline for advanced data manipulation and transformation.<br/>
+    **Example:**
     ```javascript
     // Print all the model of the cars and price by multuplying it by 2.
     db.cars.aggregate([{$project: {_id: 0, model: 1, new_price: {$multiply: ["$price", 2]}}}])
     ```
 - **$round:** This operator rounds a number to a whole integer or to a specified decimal place.<br/>
+    **Example:**
     ```javascript
     // This will round the price_in_lakhs field upto 1 decimal place.
     db.cars.aggregate([{$project: {_id: 0, model: 1, price: 1}}, {$addFields: {price_in_lakhs: {$round: [{$divide: ["$price", 100000]}, 1]}}}])
     ```
 - **$abs:** This operator is used to find the absolute value of the specified number.<br/>
+    **Example:**
     ```javascript
     // Subtract the price from 100 and return the absolute value (intentionally 100 se subtract kiya price ko taaki abs ka use pata chale).
     db.cars.aggregate([{$project: {_id: 0, price: {$abs: {$subtract: [100, "$price"]}}}}])
@@ -432,6 +448,7 @@ db.cars.aggregate([
 ### Conditions in MongoDB
 
 - **$cond:** It evaluates a boolean expression to return one of the two specified return expressions. It acts like a ternary operator in programming languages. It allows you to conditionally execute different expressions based on a boolean condition.<br/>
+    **Example:**
     ```javascript
     // Check if a car's fuel_type is "petrol" and categorize the cars into "petrol car" and "non-petrol car".
     db.cars.aggregate([
@@ -450,6 +467,7 @@ db.cars.aggregate([
     ]) 
     ```
 - **$switch:** It executes the first branch it finds which evaluates to true . If none of the branches evaluates to true, `$switch` executes the default option.<br/>
+    **Example:**
     ```javascript
     // Categorize the price of the cars into 3 categories: Budget, Midrange, Premium.
     db.cars.aggregate([
@@ -478,4 +496,28 @@ db.cars.aggregate([
             }
         }
     ])
+    ```
+
+
+### Variables in MongoDB
+
+- **System Generated Variables:** Ye aise variables hote hain jo MongoDB hume khud provide karta hai. Inhe hum directly use kar skte hain kuchh specific ya special information use krne ke liye.<br/>
+    **Example:**
+    ```javascript
+    // print the current date
+    db.cars.aggregate([{$project: {_id: 0, model: 1, date: "$$NOW"}}])
+    ```
+- **User Defined Variables:** These variables allows us to store values and reuse them within the same pipeline, making the pipeline more readable and efficient in certain scenarios.<br/>
+    **Example:**
+    ```javascript
+    // all the examples above in which addFields or set is being is used are an example of userdefined datatypes
+    db.cars.aggregate([{$project: {_id: 0, model: 1, price: 1}}, {$addFields: {price_in_lakhs: {$round: [{$divide: ["$price", 100000]}, 1]}}}])
+    
+    // example for integer variable
+    checkPrice=1500000
+    db.cars.find({price: checkPrice})
+
+    // another example for object variable
+    hyundai={maker: "Hyundai"}
+    db.cars.find(hyundai)
     ```
