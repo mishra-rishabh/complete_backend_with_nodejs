@@ -517,7 +517,7 @@ db.cars.aggregate([
     checkPrice=1500000
     db.cars.find({price: checkPrice})
 
-    // another example for object variable
+    // example for object variable
     hyundai={maker: "Hyundai"}
     db.cars.find(hyundai)
     ```
