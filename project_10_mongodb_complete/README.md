@@ -384,6 +384,7 @@ db.orders.aggregate([
     db.cars.aggregate([{$project: {model: 1, _id: 0, is_diesel: {$regexMatch: {input: "$fuel_type", regex: "Die"}}}}])
     ```
 
+
 ### Arithmetic Operators (Commonly Used)
 
 - **$add:** It is used to **add** numbers together or **concatenate** numbers and dates in the aggregation pipeline.<br/>
@@ -417,3 +418,64 @@ db.orders.aggregate([
     db.cars.aggregate([{$project: {_id: 0, price: {$abs: {$subtract: [100, "$price"]}}}}])
     ```
 - **$ceil:** It performs mathematical rounding of a number to the smallest integer greater than or equal to that number.<br/>
+
+
+**Calculate total service cost of each Hyundai car**<br/>
+```javascript
+db.cars.aggregate([
+    { $match: { maker: "Hyundai" } },
+    { $set: { total_service_cost: { $sum: "$service_history.cost" } } },
+    { $project: { _id: 0, maker: 1, model: 1, total_service_cost: 1 } }
+])
+```
+
+### Conditions in MongoDB
+
+- **$cond:** It evaluates a boolean expression to return one of the two specified return expressions. It acts like a ternary operator in programming languages. It allows you to conditionally execute different expressions based on a boolean condition.<br/>
+    ```javascript
+    // Check if a car's fuel_type is "petrol" and categorize the cars into "petrol car" and "non-petrol car".
+    db.cars.aggregate([
+        { $project: {
+            _id: 0,
+            maker: 1,
+            model: 1,
+            fuel_category: {
+                $cond: {
+                    if: { $eq: ["$fuel_type", "Petrol"] },
+                        then: "Petrol Car",
+                    else: "Non-Petrol Car"
+                }
+            } 
+        }}
+    ]) 
+    ```
+- **$switch:** It executes the first branch it finds which evaluates to true . If none of the branches evaluates to true, `$switch` executes the default option.<br/>
+    ```javascript
+    // Categorize the price of the cars into 3 categories: Budget, Midrange, Premium.
+    db.cars.aggregate([
+        { $project:
+            {
+                _id: 0,
+                maker: 1,
+                model: 1,
+                price: 1,
+                price_category: {
+                    $switch: {
+                        branches: [
+                            { case: { $lt: ["$price", 500000] },
+                                then: "Budget"
+                            },
+                            { case: { $and: [{$gte: ["$price", 500000]}, {$lt: ["$price", 1000000]}] },
+                                then: "Midrange"
+                            },
+                            { case: {$gte: ["$price", 1000000]},
+                                then: "Premium"
+                            }                            
+                        ],
+                        default: "Unknown"
+                    }
+                }
+            }
+        }
+    ])
+    ```
