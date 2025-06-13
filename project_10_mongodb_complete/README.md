@@ -521,3 +521,117 @@ db.cars.aggregate([
     hyundai={maker: "Hyundai"}
     db.cars.find(hyundai)
     ```
+
+
+### Data Modeling
+
+MongoDB is a NoSQL database, it doesn't enforce strict schema relationships like foreign key in relational database.<br/>
+We can still model relationships between documents in MongoDB using a few approaches.
+
+The 2 main types of relationships are:
+1. **Embedded Documents (Denormalization):** Isme, same document/collection me hi dusre documents embed kr dete hain. Jaise **cars** collection me car ka data to tha hi lekin usme **owners** and **service_history** bhi embed kr diya.<br/>
+    **Example:**
+    ```javascript
+    {
+        _id: ObjectId('6842c862224f9329d66c4bd2'),
+        maker: 'Hyundai',
+        model: 'Creta',
+        fuel_type: 'Diesel',
+        transmission: 'Manual',
+        engine: { type: 'Naturally Aspirated', cc: 1493, torque: '250 Nm' },
+        features: [
+            'Sunroof',
+            'Leather Seats',
+            'Wireless Charging',
+            'Ventilated Seats',
+            'Bluetooth'
+        ],
+        sunroof: true,
+        airbags: 6,
+        price: 1500000,
+        owners: [
+            { name: 'Raju', purchase_date: '2021-03-15', location: 'Mumbai' },
+            { name: 'Shyam', purchase_date: '2023-01-10', location: 'Delhi' }
+        ],
+        service_history: [
+            { date: '2022-04-10', service_type: 'Oil Change', cost: 5000 },
+            {
+            date: '2023-07-18',
+            service_type: 'Brake Replacement',
+            cost: 12000
+            }
+        ]
+    }
+    ```
+2. **Referenced Documents (Normalization):** Isme, separate collections hote hain. Agar hum **users** and **orders** collection ke example se dekhein to **users** collection sirf users ka hi data hai that's it and koi aur information nahi hai, similarly **orders** collection me sirf order ki details hain lekin isme ``user_id`` ke through dono collections connected hain.<br/>
+    **Example:**
+    ```javascript
+    // users collection
+    {
+        "_id": "user1",
+        "name": "Amit Sharma",
+        "email": "amit.sharma@example.com",
+        "phone": "+91-987654210",
+        "address": "MG Road, Mumbai, Maharashtra"
+    },
+    {
+        "_id": "user2",
+        "name": "Priya Verma",
+        "email": "priya.verma@example.com",
+        "phone": "+91-987654211",
+        "address": "Nehru Place, New Delhi, Delhi"
+    }
+
+    // orders collection
+    {
+        "_id": "order1",
+        "user_id": "user1",
+        "product": "Laptop",
+        "amount": 50000,
+        "order_date": "2024-08-01"
+    },
+    {
+        "_id": "order2",
+        "user_id": "user2",
+        "product": "Mobile Phone",
+        "amount": 15000,
+        "order_date": "2024-08-05"
+    }
+    ```
+
+
+### Types of Relationships
+
+1. **One to One:** Agar hum user ke example se dekhein to ek user ka ek hi Aadhar Number hoga.
+2. **One to Many:** Agar hum ek social media platform ki baat karein to, ek user multiple posts daal skta hai.
+3. **Many to Many:** Agar hum students and courses ki baat karein to, ek course ko multiple students opt kr skte hain and ek student multiple courses opt kr skta hai.
+
+### Join in MongoDB
+
+In MongoDb, humare paas **relational database** ke jaise **left join**, **right join**, etc, nahi hote. Hum join `$lookup` ke through perform krte hain.
+
+**$lookup:** In MongoDB, joins are typically simulated using the $lookup stage within an aggregation pipeline. This stage allows you to combine data from two or more collections based on a shared field.<br/>
+**Example:**
+```javascript
+db.users.aggregate([
+    {
+        "$lookup": {
+            "from": "orders",               // the target collection to join with
+            "localField": "_id",            // the field from the "users" collection
+            "foreignField": "user_id",      // the field from the "orders" collection
+            "as": "orders"                  // the name of the new array field to add to the "users"
+        }
+    }
+])
+```
+
+
+### Limitations of Embedded Documents
+
+1. **Document Size Limit:** MongoDB imposes a maximum document size limit of **16 MB**. This means that the entire document, including all embedded documents, cannot exceed **16 MB** in size. This limit is generally large enough for most use cases, but it can become a concern if you have a lot of embedded data.
+
+2. **Nesting Depth Limit:** MongoDB allows documents to be nested up to **100 levels deep**. However, deeply nested documents can become difficult to manage and may lead to performance issues, so it is generally advisable to keep the nesting as shallow as possible.
+
+
+### Schema Validation in MongoDB
+
