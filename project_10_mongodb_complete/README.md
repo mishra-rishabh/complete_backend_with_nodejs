@@ -702,3 +702,44 @@ db.runCommand({
 
 ### Indexes in MongoDB
 
+Without indexes, MongoDB **must scan every document** of a collection to select those documents that match the query statement. This scan is **highly inefficient** and require MongoDB to process a large volume of data.<br/>
+An **index** is a data structure that improves the **speed** of query operations by allowing the database to quickly **locate** and **access** the required data **without scanning** every document in a collection.<br/>
+Indexes store a **small portion of the data set** in an **easy-to-traverse form**. The index stores the value of a specific field or set of fields, ordered by the value of the field as specified in the index.
+
+- **`createIndex()` method:** To create an index, we need to use `createIndex()` method of MongoDB.<br/>
+    **Example:**
+    ```javascript
+    // syntax
+    db.collection_name.createIndex(
+        { <field_1>: <type_1>, <field_2>: <type_2>, ... }, { <options> }
+    )
+
+    db.cars.createIndex({model: 1})
+    db.cars.createIndex({model: 1}, {unique: true})
+    db.cars.find({model: "Creta"}).explain("executionStats")
+    ```
+- **`dropIndex()` method:** We can drop a particular index using the `dropIndex()` method of MongoDB.<br/>
+    **Example:**
+    ```javascript
+    // syntax
+    db.cars.dropIndex("name_of_the_index")
+    
+    db.cars.dropIndex("model")
+    ```
+- **`getIndexes()` method:** This method returns the description of all the indexes int the collection.<br/>
+    **Example:**
+    ```javascript
+    db.cars.getIndexes()
+    ```
+
+#### Types of Indexes
+
+- **Single Field Index**
+- **Compound Index:** Involves multiple fields.
+- **Unique Index:** Index that ensures no two documents have the same value for the indexed field.
+- **TTL Index:** Time To Live indexes that are used to automatically remove documents after a certain period.
+
+#### Performance Considerations While Using Indexes
+
+- **Impact on Write Operations:** While indexes speed up reads, they can slow down insertions, updates, and deletions because the indexes need to be maintained.
+- **Indexing Large Collections:** Learn about the considerations when indexing large collections, such as index size and the impact on RAM.
