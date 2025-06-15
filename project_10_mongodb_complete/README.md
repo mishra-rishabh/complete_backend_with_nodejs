@@ -635,3 +635,70 @@ db.users.aggregate([
 
 ### Schema Validation in MongoDB
 
+MongoDB me ek problem hai ki hum kaisa bhi data insert krwa skte hain kisi bhi document me even if it is meaningless. To iske liye hum schema validation use krte hain. Jabb hum collection banate hain tabb hum validation rules apply kr skte hain.<br/>
+- MongoDB uses a JSON schema format to define the validation rules.
+- It allows us to specify various constraints and rules for our documents, such as required files, field types, and value ranges.
+**Example:**
+```javascript
+db.createCollection("users1", {
+    validator: {
+        $jsonSchema: {
+            bsonType: "object",
+            required: ["name", "age"],
+            properties: {
+                name: {
+                    bsonType: "string",
+                    description: "must be a string and is required"
+                },
+                age: {
+                    bsonType: "int",
+                    minimum: 18,
+                    description: "must be an integer and is required"
+                }
+            }
+        }
+    },
+    validationLevel: "strict",
+    validationAction: "error"
+})
+```
+In the above example, hum logg apne according schema validation laga skte hain, unki properties set kr skte hain, custom error messages set kr skte hain.
+
+**Validation Levels:**
+- **strict:** The document must fully comply with the schema validation rules. If a document does not comply, it will not be inserted or updated in the collection.
+- **moderate:** Only new documents and modified fields in existing documents are validated against the schema. This allows for partial validation and can be useful for legacy systems or gradual schema enforcement.
+
+**Validation Actions:**
+- **error:** If a document does not meet the schema validation criteria, MongoDB will throw an error and reject the insert or update operation.
+- **warn:** MongoDB logs a warning message when a document does not meet the schema validation criteria, but still allows the insert or update operation.
+
+**How can we update the existing collection to add validation ?**
+
+```javascript
+db.runCommand({
+    collMod: "users",   // collMod is "collection modifier"
+    validator: {
+        $jsonSchema: {
+            bsonType: "object",
+            required: ["name", "age"],
+            properties: {
+                name: {
+                    bsonType: "string",
+                    description: "must be a string and is required"
+                },
+                age: {
+                    bsonType: "int",
+                    minimum: 18,
+                    description: "must be an integer and is required"
+                }
+            }
+        }
+    },
+    validationLevel: "moderate",
+    validationAction: "warn"
+})
+```
+
+
+### Indexes in MongoDB
+
