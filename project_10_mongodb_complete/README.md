@@ -743,3 +743,20 @@ Indexes store a **small portion of the data set** in an **easy-to-traverse form*
 
 - **Impact on Write Operations:** While indexes speed up reads, they can slow down insertions, updates, and deletions because the indexes need to be maintained.
 - **Indexing Large Collections:** Learn about the considerations when indexing large collections, such as index size and the impact on RAM.
+
+
+### Transaction in MongoDB
+
+A transaction in MongoDB is a **sequence of operations** that are executed as a **single unit**, ensuring that all operations **either complete successfully** or are **fully rolled back**, maintaining ACID properties across multiple documents and collections.<br/>
+**Example of a Multi-Document Transaction:**<br/>
+You want to transfer money from one account to another, which requires updating two documents within a single transaction.
+
+
+### Sharding in MongoDB
+
+Sharding is a method of **distributing data across multiple servers (shards)** to enable **horizontal scaling**, allowing the database to **handle large datasets** and **high-throughput** operations efficiently.
+
+
+### Replication in MongoDB
+
+Replication is a **group** of **MongoDB servers** that maintain **identical copies** of data to ensure high availability, redundancy, and data durability, with one primary node handling writes and multiple secondary nodes replicating the data.
